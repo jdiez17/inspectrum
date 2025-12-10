@@ -44,6 +44,8 @@ signals:
 
 public slots:
     void cursorsMoved();
+    void enableTimePointer(bool enabled);
+    void enableFrequencyPointer(bool enabled);
     void enableCursors(bool enabled);
     void enableScales(bool enabled);
     void enableAnnotations(bool enabled);
@@ -79,6 +81,8 @@ private:
     int zoomLevel = 1;
     int powerMin;
     int powerMax;
+    bool timePointerEnabled;
+    bool frequencyPointerEnabled;
     bool cursorsEnabled;
     double sampleRate = 0.0;
     bool timeScaleEnabled;

@@ -50,6 +50,8 @@ PlotView::PlotView(InputSource *input) : cursors(this), viewRange({0, 0})
     auto tunerOutput = std::dynamic_pointer_cast<SampleSource<std::complex<float>>>(spectrogramPlot->output());
 
     enableScales(true);
+    timePointerEnabled = false;
+    frequencyPointerEnabled = false;
 
     enableAnnotations(true);
     enableAnnotationCommentsTooltips(true);
@@ -223,6 +225,21 @@ void PlotView::enableCursors(bool enabled)
     viewport()->update();
 }
 
+void PlotView::enableTimePointer(bool enabled)
+{
+    timePointerEnabled = enabled;
+    spectrogramPlot->enableTimeFrequencyPointers(timePointerEnabled, frequencyPointerEnabled);
+
+    viewport()->update();
+}
+
+void PlotView::enableFrequencyPointer(bool enabled)
+{
+    frequencyPointerEnabled = enabled;
+    spectrogramPlot->enableTimeFrequencyPointers(timePointerEnabled, frequencyPointerEnabled);
+
+    viewport()->update();
+}
 bool PlotView::viewportEvent(QEvent *event) {
     // Handle wheel events for zooming (before the parent's handler to stop normal scrolling)
     if (event->type() == QEvent::Wheel) {
@@ -286,6 +303,9 @@ bool PlotView::viewportEvent(QEvent *event) {
         if (cursorsEnabled)
             if (cursors.mouseEvent(event->type(), mouseEvent))
                 return true;
+
+        if (timePointerEnabled || frequencyPointerEnabled)
+            updateView();
     }
 
     if (event->type() == QEvent::Leave) {

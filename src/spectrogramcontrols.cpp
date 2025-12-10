@@ -41,6 +41,12 @@ SpectrogramControls::SpectrogramControls(const QString & title, QWidget * parent
     sampleRate->setValidator(double_validator);
     layout->addRow(new QLabel(tr("Sample rate:")), sampleRate);
 
+    // Frequency and time pointer settings
+    frequencyPointerCheckBox = new QCheckBox(widget);
+    layout->addRow(new QLabel(tr("Enable frequency pointer:")), frequencyPointerCheckBox);
+    timePointerCheckBox = new QCheckBox(widget);
+    layout->addRow(new QLabel(tr("Enable time pointer:")), timePointerCheckBox);
+
     // Spectrogram settings
     layout->addRow(new QLabel()); // TODO: find a better way to add an empty row?
     layout->addRow(new QLabel(tr("<b>Spectrogram</b>")));

@@ -45,6 +45,8 @@ MainWindow::MainWindow()
     // Connect dock inputs
     connect(dock, &SpectrogramControls::openFile, this, &MainWindow::openFile);
     connect(dock->sampleRate, static_cast<void (QLineEdit::*)(const QString&)>(&QLineEdit::textChanged), this, static_cast<void (MainWindow::*)(QString)>(&MainWindow::setSampleRate));
+    connect(dock->timePointerCheckBox, &QCheckBox::stateChanged, plots, &PlotView::enableTimePointer);
+    connect(dock->frequencyPointerCheckBox, &QCheckBox::stateChanged, plots, &PlotView::enableFrequencyPointer);
     connect(dock, static_cast<void (SpectrogramControls::*)(int, int)>(&SpectrogramControls::fftOrZoomChanged), plots, &PlotView::setFFTAndZoom);
     connect(dock->powerMaxSlider, &QSlider::valueChanged, plots, &PlotView::setPowerMax);
     connect(dock->powerMinSlider, &QSlider::valueChanged, plots, &PlotView::setPowerMin);

@@ -74,6 +74,7 @@ public:
     bool tunerEnabled();
     void enableScales(bool enabled);
     void enableAnnotations(bool enabled);
+    void enableTimeFrequencyPointers(bool timePointer, bool frequencyPointer);
     bool isAnnotationsEnabled();
     QString *mouseAnnotationComment(const QMouseEvent *event);
 
@@ -103,6 +104,11 @@ private:
     double sampleRate;
     bool frequencyScaleEnabled;
     bool sigmfAnnotationsEnabled;
+    bool timePointerEnabled;
+    bool frequencyPointerEnabled;
+
+    int mouseX;
+    int mouseY;
 
     Tuner tuner;
     std::shared_ptr<TunerTransform> tunerTransform;
@@ -116,6 +122,7 @@ private:
     int linesPerTile();
     void paintFrequencyScale(QPainter &painter, QRect &rect);
     void paintAnnotations(QPainter &painter, QRect &rect, range_t<size_t> sampleRange);
+    void paintTimeFrequencyPointers(QPainter &painter, QRect &rect, range_t<size_t> sampleRange);
 };
 
 class AnnotationLocation

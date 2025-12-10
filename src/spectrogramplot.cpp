@@ -42,6 +42,8 @@ SpectrogramPlot::SpectrogramPlot(std::shared_ptr<SampleSource<std::complex<float
     sampleRate = 0;
     frequencyScaleEnabled = false;
     sigmfAnnotationsEnabled = true;
+    timePointerEnabled = false;
+    frequencyPointerEnabled = false;
 
     for (int i = 0; i < 256; i++) {
         float p = (float)i / 256;
@@ -72,6 +74,54 @@ void SpectrogramPlot::paintFront(QPainter &painter, QRect &rect, range_t<size_t>
 
     if (sigmfAnnotationsEnabled)
         paintAnnotations(painter, rect, sampleRange);
+
+    if (timePointerEnabled || frequencyPointerEnabled)
+        paintTimeFrequencyPointers(painter, rect, sampleRange);
+}
+
+void SpectrogramPlot::paintTimeFrequencyPointers(QPainter &painter, QRect &rect, range_t<size_t> sampleRange)
+{
+    if (sampleRate == 0) {
+        return;
+    }
+
+    if (sampleRate / 2 > UINT64_MAX) {
+        return;
+    }
+
+    int plotHeight = rect.height();
+    if (inputSource->realSignal())
+        plotHeight *= 2;
+
+    double bwPerPixel = (double)sampleRate / plotHeight;
+
+    painter.save();
+
+    QPen pen(Qt::white, 1, Qt::SolidLine);
+    painter.setPen(pen);
+    QFontMetrics fm(painter.font());
+
+
+    char buf[128];
+    if (frequencyPointerEnabled) {
+        int freqHz = ((plotHeight / 2) - mouseY) * bwPerPixel;
+        snprintf(buf, sizeof(buf), "Frequency: %d Hz", freqHz);
+
+        painter.drawLine(0, mouseY, mouseX, mouseY);
+        painter.drawText(mouseX + 15, mouseY, buf);
+    }
+    if (timePointerEnabled) {
+        float timeStart = sampleRange.minimum / sampleRate;
+        float timeEnd = sampleRange.maximum / sampleRate;
+        float secondsPerPixel = (timeEnd - timeStart) / rect.width();
+        float timeAtPointer = timeStart + mouseX * secondsPerPixel;
+        snprintf(buf, sizeof(buf), "Time: %.6f s", timeAtPointer);
+
+        painter.drawText(mouseX + 15, mouseY + fm.height(), buf);
+        painter.drawLine(mouseX, 0, mouseX, mouseY);
+    }
+
+    painter.restore();
 }
 
 void SpectrogramPlot::paintFrequencyScale(QPainter &painter, QRect &rect)
@@ -356,6 +406,11 @@ bool SpectrogramPlot::mouseEvent(QEvent::Type type, QMouseEvent *event)
     if (tunerEnabled())
         return tuner.mouseEvent(type, event);
 
+    if (timePointerEnabled || frequencyPointerEnabled) {
+        mouseX = event->x();
+        mouseY = event->y();
+    }
+
     return false;
 }
 
@@ -446,6 +501,11 @@ void SpectrogramPlot::tunerMoved()
     QPixmapCache::clear();
 
     emit repaint();
+}
+
+void SpectrogramPlot::enableTimeFrequencyPointers(bool timePointer, bool frequencyPointer) {
+    timePointerEnabled = timePointer;
+    frequencyPointerEnabled = frequencyPointer;
 }
 
 uint qHash(const TileCacheKey &key, uint seed)
